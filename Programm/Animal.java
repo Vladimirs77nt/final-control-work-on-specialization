@@ -1,9 +1,12 @@
 import java.util.ArrayList;
 
+import org.w3c.dom.css.Counter;
+
 public class Animal {
 
-    private static int count;   // счетчик
+    protected static int count = 0;   // счетчик
 
+    protected int id;              // id номер
     public int classAnimal;     // класс животного (домашнее - 1 и вьючное - 2, прочее - 3)
     public String typeAnimal;   // вид животного (кошка, собака, лошадь...)
     public String name;         // имя животного
@@ -16,6 +19,7 @@ public class Animal {
         this.name = name;
         this.age = age;
         this.commands = commands;
+        this.id = count;
         count++;
     }
 
@@ -52,5 +56,13 @@ public class Animal {
 
     public static int getCount() {
         return count;
+    }
+
+    public int getID() {
+        return id;
+    }
+
+    public void addNewCommand(String newCommand) {
+        commands.add(newCommand);
     }
 }

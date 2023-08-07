@@ -16,6 +16,7 @@ public class Programm {
     public static String filename = "database.txt";
 
     public static void main(String[] args) {
+        System.out.println();
         System.out.println("ДОБРО ПОЖАЛОВАТЬ В ПИТОМНИК !");
         load_data();
         Scanner scanner = new Scanner(System.in, "Cp866");
@@ -27,8 +28,11 @@ public class Programm {
             System.out.print("> ");
             stroka = scanner.nextLine();
             if (stroka.equals("0")) break;
-            controller(Integer.parseInt(stroka));
-            
+            try {
+                controller(Integer.parseInt(stroka));}
+            catch (Exception ex){
+                System.out.println("ошибка ввода...");
+            }
         } while (true);
 
         System.out.println("\n << Программа завершена >>>\n");
@@ -44,8 +48,10 @@ public class Programm {
         System.out.println("Меню операций:");
         System.out.println(" > 1 - Вывести список животных питомника");
         System.out.println(" > 2 - Завести новое животное");
-        System.out.println(" > 3 - Выбрать животное для работы с ним");
-        System.out.println(" > 4 - Сохранение базы данны в файл");
+        System.out.println(" > 3 - Увидеть список команд животного по ID");
+        System.out.println(" > 4 - Добавить новые команды для животного по ID");
+        System.out.println(" > 5 - Удалить животное по ID");
+        System.out.println(" > 6 - Сохранение базы данны в файл");
         System.out.println(" > 0 - завершение работы программы");
         System.out.println();
     }
@@ -55,19 +61,23 @@ public class Programm {
      * @param choice - номер в меню
      */
     public static void controller(int choice){
-        System.out.println(" --- запуск контроллера ---");
-        System.out.println("Команда = " + choice);
         switch (choice) {
-            case 1:
+            case 1: // список всех животных
                 printAnimal();
                 break;
-            case 2:
-                add_animal(inputAnimal());
+            case 2: // новое животное
+                inputAnimal();
                 break;
-            case 3:
-                
+            case 3: // список команд животного
+                commandAnimal();
                 break;
-            case 4:
+            case 4: // добавление новых команд животного
+                addCommandAnimal();;
+                break;
+            case 5: // удаление животного по ID
+                deleteAnimal();
+                break;
+            case 6: // запись в файл
                 save_data();
                 break;
             default:
@@ -111,24 +121,150 @@ public class Programm {
     }
 
     /**
-     * Метод вывода на экран всех животных в питомнике
+     * Метод вывода на экран ВСЕХ животных в питомнике
      */
     public static void printAnimal (){
+        System.out.println("---------------------------------------------------------------------------------------------");
+        System.out.printf("%-3s %-10s %-16s %-14s %-12s %s\n", "ID", "Животное", "имя", "класс", "возраст", "команды");
+        System.out.println("---------------------------------------------------------------------------------------------");
+
         for (Animal animal : pitomnik_animals) {
-            System.out.println();
-            System.out.println("Класс животного: " + animal.classAnimal + " (" + animal.getClassName() + ")");
-            System.out.println("Вид животного: " + animal.typeAnimal);
-            System.out.println("Имя: "  + animal.name);
-            System.out.println("Возвраст: " + animal.age);
-            System.err.println("Команды: " + animal.commands.toString());
+            System.out.printf("%-3d %-10s %-10s (%-17s)     %-5d  %-10s \n",
+                                animal.getID(), animal.typeAnimal, animal.getName(), animal.getClassName(), animal.getAge(), animal.getCommandsString());
         }
+        System.out.println("---------------------------------------------------------------------------------------------");
+
+    }
+
+    /**
+     * Метод вывода на экран карточки животного по ID
+     */
+    public static void printAnimal2 (int id){
+        for (Animal animal : pitomnik_animals) {
+            if (animal.getID() == id) {
+                System.out.println();
+                System.err.println("ID: " + animal.getID());
+                System.out.println("Класс животного: " + animal.classAnimal + " (" + animal.getClassName() + ")");
+                System.out.println("Вид животного: " + animal.typeAnimal);
+                System.out.println("Имя: "  + animal.name);
+                System.out.println("Возвраст: " + animal.age);
+                System.err.println("Команды: " + animal.commands.toString());
+                break;
+            }
+        }
+    }
+
+    /**
+     * Метод УДАЛЕНИЯ животного по ID
+     */
+    public static void deleteAnimal (){
+        System.out.println();
+        System.out.println(" >>> УДАЛЕНИЕ ЖИВОТНОГО ИЗ ПИТОМНИКА");
+        System.out.println("Введите ID номер животного (число):");
+
+        boolean flag = true;
+        Scanner scanner = new Scanner(System.in, "Cp866");
+        String deleteID = "";
+        flag = true;
+        do {
+            deleteID = scanner.nextLine();
+            if (isNumeric(deleteID)) flag = false;
+            else System.out.println(" ошибка! введите число от 0 и выше");
+        } while (flag);
+
+        int id = Integer.parseInt(deleteID);
+        flag = false;
+        for (Animal animal : pitomnik_animals) {
+            if (animal.getID() == id) {
+                pitomnik_animals.remove(animal);
+                System.out.println(" !! животное с номером ID=" + id + " (" + animal.getTypeAnimal() + " " + animal.getName() + ") удалено !!");
+                flag = true;
+                break;
+            }
+        }
+        if (!flag)
+            System.out.println(" !! животного с таким ID нет !!");
+    }
+
+    /**
+    * Метод вывода списка команд для животного по ID
+    */
+    public static void commandAnimal (){
+        System.out.println();
+        System.out.println(" >>> Вывод списка команд для животного");
+        System.out.println("Введите ID номер животного (число):");
+
+        boolean flag = true;
+        Scanner scanner = new Scanner(System.in, "Cp866");
+        String deleteID = "";
+        flag = true;
+        do {
+            deleteID = scanner.nextLine();
+            if (isNumeric(deleteID)) flag = false;
+            else System.out.println(" ошибка! введите число от 0 и выше");
+        } while (flag);
+
+        int id = Integer.parseInt(deleteID);
+        flag = false;
+        for (Animal animal : pitomnik_animals) {
+            if (animal.getID() == id) {
+                pitomnik_animals.remove(animal);
+                System.out.println(" >> Список команд для животного с номером ID=" + id + " (" + animal.getTypeAnimal() + " " + animal.getName() + "):");
+                System.out.println(animal.getCommandsString());
+                flag = true;
+                break;
+            }
+        }
+        if (!flag)
+            System.out.println(" !! животного с таким ID нет !!");
+    }
+
+    /**
+    * Метод вывода списка команд для животного по ID
+    */
+    public static void addCommandAnimal (){
+        System.out.println();
+        System.out.println(" >>> Добавление новых команд для животного");
+        System.out.println("Введите ID номер животного (число):");
+
+        boolean flag = true;
+        Scanner scanner = new Scanner(System.in, "Cp866");
+        String deleteID = "";
+        flag = true;
+        do {
+            deleteID = scanner.nextLine();
+            if (isNumeric(deleteID)) flag = false;
+            else System.out.println(" ошибка! введите число от 0 и выше");
+        } while (flag);
+
+        int id = Integer.parseInt(deleteID);
+        flag = false;
+        for (Animal animal : pitomnik_animals) {
+            if (animal.getID() == id) {
+                System.out.println("\n >> Текущий список команд для животного с номером ID=" + id + " (" + animal.getTypeAnimal() + " " + animal.getName() + "):");
+                System.out.println(animal.getCommandsString());
+                System.out.println("\nВведите новые команды (через пробел):");
+                String newCommandsAnimal = scanner.nextLine();
+                String[] strokaArray = newCommandsAnimal.split(" ");
+                for (int i = 0; i < strokaArray.length; i++) {
+                    if (strokaArray[i] != "")
+                        animal.addNewCommand(strokaArray[i]);
+                }
+                System.out.println("\n >> Обновленный список команд для животного с номером ID=" + id + " (" + animal.getTypeAnimal() + " " + animal.getName() + "):");
+                System.out.println(animal.getCommandsString());
+                flag = true;
+                break;
+            }
+        }
+        if (!flag)
+            System.out.println(" !! животного с таким ID нет !!");
     }
 
     /**
      * Добавление нового животного в базу данных
      * @return
      */
-    public static String inputAnimal(){
+    public static void inputAnimal(){
         System.out.println();
         System.out.println(" >>> ДОБАВЛЕНИЕ ЖИВОТНОГО В ПИТОМНИКЕ");
         System.out.println("Введите класс животного (число 1-2-3):");
@@ -170,7 +306,8 @@ public class Programm {
         String commandsAnimal = scanner.nextLine();
 
         String line = classAnimal + " " + typeAnimal + " " + nameAnimal + " " + ageAnimal + " " + commandsAnimal;
-        return line;
+        add_animal(line);
+        System.out.println(" !! новое животное добавлено в питомник !!");
     }
 
     /**
